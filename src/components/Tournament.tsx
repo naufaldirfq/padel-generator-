@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Player, TournamentState, Match } from '../types';
 import { generateNextRound, recalculateStats } from '../utils/engine';
-import { Activity, Trophy, Swords, ChevronRight, Download } from 'lucide-react';
+import { Activity, Trophy, Swords, ChevronRight, ChevronLeft, Download } from 'lucide-react';
 
 export default function Tournament({
   state,
@@ -11,6 +11,7 @@ export default function Tournament({
   setState: React.Dispatch<React.SetStateAction<TournamentState>>;
 }) {
   const [activeTab, setActiveTab] = useState<'matches' | 'leaderboard'>('matches');
+  const [displayRound, setDisplayRound] = useState(state.currentRound || 1);
 
   // Generate first round if matches is empty
   useEffect(() => {
@@ -19,6 +20,12 @@ export default function Tournament({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (state.currentRound > 0) {
+      setDisplayRound(state.currentRound);
+    }
+  }, [state.currentRound]);
 
   const handleNextRound = () => {
     const nextRoundNumber = state.currentRound + 1;
@@ -53,8 +60,10 @@ export default function Tournament({
     });
   };
 
-  const currentRoundMatches = state.matches.filter((m) => m.round === state.currentRound);
-  const allMatchesFinished = currentRoundMatches.every((m) => m.scoreA !== null && m.scoreB !== null);
+  const displayMatches = state.matches.filter((m) => m.round === displayRound);
+  const latestRoundMatches = state.matches.filter((m) => m.round === state.currentRound);
+  const latestRoundFinished = latestRoundMatches.length === 0 || latestRoundMatches.every((m) => m.scoreA !== null && m.scoreB !== null);
+  const canGenerateNext = state.format === 'americano' ? true : latestRoundFinished;
 
   const sortedLeaderboard = [...state.players].sort((a, b) => {
     if (a.points !== b.points) return b.points - a.points;
@@ -118,16 +127,35 @@ export default function Tournament({
       <div className={`col-span-1 lg:col-span-8 space-y-8 ${activeTab === 'matches' ? 'block' : 'hidden lg:block'}`}>
         <div className="flex flex-col sm:flex-row sm:items-end justify-between border-b border-[var(--line-color)] pb-4 gap-4">
           <div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 mb-2">
               <div className="bg-white p-2 text-black">
                 <Activity size={20} />
               </div>
-              <h2 className="text-xl font-display uppercase tracking-widest">
-                Round <span className="text-[var(--neon-green)]">{state.currentRound}</span>
-              </h2>
+              <div className="flex items-center gap-2 sm:gap-3">
+                <button 
+                  onClick={() => setDisplayRound(d => Math.max(1, d - 1))}
+                  disabled={displayRound <= 1}
+                  className="text-gray-400 hover:text-white disabled:opacity-20 transition-opacity p-1"
+                >
+                  <ChevronLeft size={24} />
+                </button>
+                <h2 className="text-xl font-display uppercase tracking-widest w-32 text-center select-none">
+                  Round <span className="text-[var(--neon-green)]">{displayRound}</span>
+                  {state.currentRound > 0 && <span className="text-gray-500 text-sm ml-2">/ {state.currentRound}</span>}
+                </h2>
+                <button 
+                  onClick={() => setDisplayRound(d => Math.min(state.currentRound, d + 1))}
+                  disabled={displayRound >= state.currentRound}
+                  className="text-gray-400 hover:text-white disabled:opacity-20 transition-opacity p-1"
+                >
+                  <ChevronRight size={24} />
+                </button>
+              </div>
             </div>
             <p className="text-xs uppercase tracking-widest text-gray-500 mt-2">
-              All matches must be finished to unlock next round.
+              {state.format === 'mexicano' 
+                ? 'All matches must be finished to unlock next round.' 
+                : 'Americano format allows generating ahead freely.'}
             </p>
           </div>
           
@@ -141,7 +169,7 @@ export default function Tournament({
             </button>
             <button
               onClick={handleNextRound}
-              disabled={!allMatchesFinished}
+              disabled={!canGenerateNext}
               className="action-btn px-6 py-3 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Next Round <ChevronRight size={18} />
@@ -150,7 +178,7 @@ export default function Tournament({
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {currentRoundMatches.map((match) => (
+          {displayMatches.map((match) => (
             <div key={match.id} className="brutal-border flex flex-col">
               <div className="border-b border-[var(--line-color)] p-3 flex justify-between items-center bg-[var(--faded-black)]">
                 <span className="text-xs font-semibold uppercase tracking-widest text-gray-400">
@@ -217,7 +245,7 @@ export default function Tournament({
               )}
             </div>
           ))}
-          {currentRoundMatches.length === 0 && (
+          {displayMatches.length === 0 && (
             <div className="col-span-full border border-dashed border-[var(--line-color)] p-12 text-center text-gray-500 uppercase tracking-widest text-sm">
               Press "Next Round" to begin
             </div>

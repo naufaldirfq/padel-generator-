@@ -30,6 +30,8 @@ export default function App() {
     localStorage.setItem('padelTournamentState', JSON.stringify(state));
   }, [state]);
 
+  const [showConfirm, setShowConfirm] = useState(false);
+
   const startTournament = (players: Player[], courts: number, format: 'americano' | 'mexicano', pointsPerMatch: number) => {
     setState({
       ...state,
@@ -44,9 +46,12 @@ export default function App() {
   };
 
   const endTournament = () => {
-    if (window.confirm('Are you sure you want to end this event? You will return to the setup screen and match data will remain until a new event is started.')) {
-      setState({ ...state, status: 'setup' });
-    }
+    setShowConfirm(true);
+  };
+
+  const confirmEndTournament = () => {
+    setState({ ...state, status: 'setup' });
+    setShowConfirm(false);
   };
 
   return (
@@ -80,6 +85,32 @@ export default function App() {
           <Tournament state={state} setState={setState} />
         )}
       </main>
+
+      {/* Confirmation Modal */}
+      {showConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-[var(--brutal-black)] border border-[var(--line-color)] max-w-sm w-full p-6 shadow-2xl">
+            <h3 className="text-xl font-display uppercase tracking-widest text-white mb-4">End Event?</h3>
+            <p className="text-sm text-gray-400 mb-8">
+              Are you sure you want to end this event? You will return to the setup screen. Tournament config and players will remain.
+            </p>
+            <div className="flex gap-4">
+              <button 
+                onClick={() => setShowConfirm(false)} 
+                className="flex-1 action-btn-outline py-3 text-xs"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={confirmEndTournament} 
+                className="flex-1 brutal-border bg-red-500 text-white font-semibold uppercase tracking-widest text-xs hover:bg-red-600 transition-colors"
+              >
+                End It
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
