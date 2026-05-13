@@ -1,0 +1,81 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-display: "Anton", sans-serif;
+}
+
+:root {
+  --neon-green: #ccff00;
+  --brutal-black: #0f1115;
+  --faded-black: #1a1d24;
+  --gallery-white: #ffffff;
+  --line-color: #272a30;
+}
+
+body {
+  background-color: var(--brutal-black);
+  color: var(--gallery-white);
+}
+
+.brutal-border {
+  border: 1px solid var(--line-color);
+}
+
+.action-btn {
+  background-color: var(--gallery-white);
+  color: var(--brutal-black);
+  font-weight: 600;
+  text-transform: uppercase;
+  transition: all 0.2s;
+}
+
+.action-btn:hover {
+  background-color: var(--neon-green);
+  color: var(--brutal-black);
+}
+
+.action-btn-outline {
+  border: 1px solid var(--gallery-white);
+  color: var(--gallery-white);
+  font-weight: 600;
+  text-transform: uppercase;
+  transition: all 0.2s;
+}
+
+.action-btn-outline:hover {
+  background-color: var(--gallery-white);
+  color: var(--brutal-black);
+}
+
+.input-brutal {
+  background-color: transparent;
+  border-bottom: 1px solid var(--line-color);
+  color: var(--gallery-white);
+  transition: border-color 0.2s;
+}
+
+.input-brutal:focus {
+  outline: none;
+  border-bottom-color: var(--neon-green);
+}
+
+.big-number {
+  font-family: var(--font-display);
+  line-height: 0.9;
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: var(--faded-black); 
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--line-color); 
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--neon-green); 
+}
+

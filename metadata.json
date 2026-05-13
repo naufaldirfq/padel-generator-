@@ -1,0 +1,6 @@
+{
+  "name": "Padel Tournament Generator",
+  "description": "Generate Padel matches based on players and courts in Americano and Mexicano formats.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
